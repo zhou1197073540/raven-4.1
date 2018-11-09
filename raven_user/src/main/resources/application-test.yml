@@ -1,0 +1,13 @@
+eureka:
+ client:
+   serviceUrl:
+#     defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+     defaultZone: ${EUREKA_URI:http://172.16.20.205:8761/eureka}
+server:
+  port: 8771
+
+spring:
+  application:
+    name: riddler-usr
+  profiles:
+    include: postgre-test, kafka-test, redis-test

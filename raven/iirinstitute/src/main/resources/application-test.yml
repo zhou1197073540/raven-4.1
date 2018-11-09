@@ -1,0 +1,31 @@
+server:
+  port: 8800
+  tomcat:
+    max-connections: 10000 #default
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+  instance:
+    preferIpAddress: true
+#    statusPageUrlPath: ${eureka.hostname}/info
+#    healthCheckUrlPath: ${eureka.hostname}/health
+    health-check-url:
+      enabled: true
+feign:
+  hystrix:
+    enabled: true
+
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 5000
+
+spring:
+  application:
+    name: IIRI
+  profiles:
+    include: redis-test,postgre-test,kafka-test
+
+logging:
+  level: info
+
+#自定义参数
+isNoteTaker: 1

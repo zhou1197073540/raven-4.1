@@ -1,0 +1,12 @@
+eureka:
+  client:
+    serviceUrl:
+#      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://172.16.20.205:8761/eureka/
+server:
+  port: 8765
+spring:
+  application:
+    name: service-taker
+  profiles:
+    include: postgre-test, redis-test, kafka-test

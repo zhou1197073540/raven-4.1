@@ -1,0 +1,13 @@
+target
+*.iml
+out/
+.idea
+.classpath
+.project
+.settings/
+bin/
+.myeclipse
+.jar
+MANIFEST.MF
+.classes/
+/classes/artifacts/

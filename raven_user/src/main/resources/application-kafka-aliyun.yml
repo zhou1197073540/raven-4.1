@@ -1,0 +1,14 @@
+producer:
+  reconnect:
+    backoff.ms: 2000
+  retry:
+    backoff.ms: 2000
+  connections.max.idle.ms: 540000
+  bootstrap.servers: 172.16.84.125:9092
+  retries: 30
+  key.serializer: org.apache.kafka.common.serialization.StringSerializer
+  value.serializer: org.apache.kafka.common.serialization.StringSerializer
+  compression.type: gzip
+  acks: all #等待所有follower确认
+  buffer.memory: 33554432
+

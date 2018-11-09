@@ -1,0 +1,8 @@
+redis:
+  address: 172.16.20.204
+  port: 6379
+  maxActive: 1024
+  maxIdle: 200
+  maxWaitMillis: 10000
+  timeout: 10000
+  testOnBorrow: true

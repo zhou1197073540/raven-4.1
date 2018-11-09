@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="../js/jquery.js"></script>
+    <link href="https://cdn.bootcss.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/bootstrap-datetimepicker.css" rel="stylesheet">
+    <script src="../js/bootstrap-datetimepicker.min.js"></script>
+    <script src="../js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script src="../webuploader/webuploader.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../webuploader/webuploader.css">
+    <link rel="stylesheet" type="text/css" href="../css/common.css">
+    <link rel="stylesheet" type="text/css" href="../css/index.css">
+    <title>fileUpload</title>
+</head>
+<body>
+<div class="container">
+    <div class="title">报告上传界面</div>
+    <div id="uploader_history"></div>
+    <div id="uploader" class="upload_grid">
+        <!--用来存放文件信息-->
+        <form class="form-inline margin-left-5px">
+            <div class="form-group">
+                <input id="title" type="text" class="form-control custom_form_input_width" placeholder="标题">
+            </div>
+            &nbsp;&nbsp;
+            <div class="form-group">
+                <button type=button id="changeInputBtn" class="btn btn-info" style="display: none">
+                    更改
+                </button>
+            </div>
+            &nbsp;&nbsp;
+            <div id="changeInputSuccess" class="form-group" style="display: none">
+                成功
+            </div>
+        </form>
+        <form class="form-horizontal margin-left-5px" style="margin-top: 10px">
+            <div class="form-group">
+                <input class="form-control custom_form_input_width" id="author" placeholder="作者">
+            </div>
+            <div class="form-group">
+                <input id="key_words" class="form-control custom_form_input_width" id="inputPassword3"
+                       placeholder="关键字 e.g：好吃,好喝,安全,耐用">
+            </div>
+            <div class="form-group">
+                <input id="date" class="form-control custom_form_input_width form_datetime" placeholder="日期" value="">
+            </div>
+        </form>
+        <div style="margin-top: 10px;">
+            <div id="thelist" class="uploader-list"></div>
+            <div class="btns">
+                <button id="fucker" class="btn btn-primary custom_btn">选择</button>
+                <div id="picker" style="display: none;">选择文件</div>
+                <button id="ctlBtn" class="btn btn-info custom_btn">上传</button>
+                <button id="newUploadBtn" class="btn btn-success custom_btn">新建</button>
+            </div>
+            <div id="result" class="margin-left-5px">
+            </div>
+        </div>
+    </div>
+</div>
+<script type="application/javascript">
+
+    var i = 0;
+    var title = "";
+    var author = "";
+    var key_words = "";
+    var date = "";
+    var timestamp = (new Date()).valueOf();
+    var has_create_folder = false;
+    var hrefs;
+
+    $(".form_datetime").datetimepicker({
+        format: "yyyy-mm-dd",
+        initialDate: new Date(),
+        autoclose: true,
+        todayBtn: true,
+        pickerPosition: "bottom-left",
+        language: "zh-CN",
+        minView: 'month'
+    });
+
+    $("#newUploadBtn").on('click', function () {
+        if (hrefs.length != 0) {
+            var old_title = title;
+            var old_author = author;
+            var old_key_words = key_words;
+            var old_date = date;
+            $("#uploader_history").append("<div class=\"upload_grid\" style='margin-bottom: 20px;'>" +
+                "<div class=\"margin-left-5px\">"
+                + old_title +
+                "</div>" +
+                "<div class=\"margin-left-5px\">"
+                + old_author +
+                "</div>" +
+                "<div class=\"margin-left-5px\">"
+                + old_key_words +
+                "</div>" +
+                "<div class=\"margin-left-5px\">"
+                + old_date +
+                "</div>" +
+                "<div style='margin-left: 5px;' id='res" + i + "' class=\"result_div\"></div></div>");
+            //res0
+            hrefs.forEach(function (href) {
+                var a = document.createElement("A");
+                var node = document.createElement("P");
+                var textnode = document.createTextNode(href);
+                a.setAttribute("href", href);
+                a.setAttribute("target", "_blank");
+                a.appendChild(textnode);
+                node.style.textAlign = "left";
+                node.appendChild(a);
+                document.getElementById("res" + i).appendChild(node);
+            });
+            init();
+            i++;
+            hrefs = [];
+        }
+    });
+
+    //    window.onbeforeunload = function (event) {
+    //        return confirm("确定退出吗");
+    //    };
+
+    var init = function () {
+        title = $("#title").val("");
+        author = $("#author").val("");
+        key_words = $("#key_words").val("");
+        date = $("#date").val("");
+        timestamp = (new Date()).valueOf();
+        has_create_folder = false;
+        $("#changeInputSuccess").hide();
+        $("#changeInputBtn").hide();
+        document.getElementById("thelist").innerHTML = "";
+        document.getElementById("result").innerHTML = "";
+        uploader.reset();
+    };
+
+    $("#fucker").on('click', function () {
+        $('.webuploader-element-invisible').trigger('click');
+    });
+
+    var uploader = create_uploader();
+
+    $("#ctlBtn").on('click', function () {
+        if (!has_create_folder) {
+            create_folder();
+            if (create_folder()) {
+                uploader.upload();
+            }
+        } else {
+            uploader.upload();
+        }
+    });
+
+    $("#changeInputBtn").on('click', function () {
+        title = $("#title").val().trim();
+        author = $("#author").val().trim();
+        key_words = $("#key_words").val().trim();
+        date = $("#date").val().trim();
+        $.ajax({
+            type: "POST",
+            url: '/change_input',
+            cache: false,
+            contentType: "application/json",
+            data: JSON.stringify({
+                fid: timestamp,
+                title: title,
+                author: author,
+                key_words: key_words,
+                date: date
+            }),
+            success: function (notice) {
+                $("#changeInputSuccess").show();
+                $("#changeInputSuccess").fadeOut(2000);
+            },
+            error: function (e) {
+                console.log(e);
+            }
+        });
+    });
+
+    function isEmpty(sth) {
+        if (sth == undefined || sth == null || sth == "") {
+            return true;
+        }
+        return false;
+    }
+
+    function create_folder() {
+        title = $("#title").val().trim();
+        author = $("#author").val().trim();
+        key_words = $("#key_words").val().trim();
+        date = $("#date").val().trim();
+        if (isEmpty(title)) {
+            alert("标题不能为空");
+            return false;
+        } else if (isEmpty(author)) {
+            alert("作者不能为空");
+            return false;
+        } else if (isEmpty(key_words)) {
+            alert("关键词不能为空");
+            return false;
+        } else if (isEmpty(date)) {
+            alert("日期不能为空");
+            return false;
+        } else {
+            $.ajax({
+                type: "POST",
+                url: '/create_folder',
+                async: false, //设为false就是同步请求
+                contentType: "application/json",
+                data: JSON.stringify({
+                    fid: timestamp,
+                    title: title,
+                    author: author,
+                    key_words: key_words,
+                    date: date
+                }),
+                cache: false,
+                success: function (notice) {
+                    has_create_folder = true;
+                }
+            });
+            return true;
+        }
+    }
+
+    function get_index() {
+        $.ajax({
+            type: "GET",
+            url: '/get_index/' + timestamp,
+            async: false, //设为false就是同步请求
+            cache: false,
+            success: function (path_str) {
+                document.getElementById("result").innerHTML = "";
+                hrefs = path_str.split(",");
+                hrefs.forEach(function (href) {
+                    var a = document.createElement("A");
+                    var node = document.createElement("P");
+                    var textnode = document.createTextNode(href);
+                    a.setAttribute("href", href);
+                    a.setAttribute("target", "_blank");
+                    a.appendChild(textnode);
+                    node.style.textAlign = "left";
+                    node.appendChild(a);
+                    document.getElementById("result").appendChild(node);
+                });
+            }
+        });
+    }
+
+    function create_uploader() {
+        var uploader = WebUploader.create({
+            fileSingleSizeLimit: 1024 * 1024 * 5,
+            // swf文件路径
+            swf: '/webuploader/Uploader.swf',
+            // 文件接收服务端。
+            server: '/upload',
+            // 选择文件的按钮。可选。
+            // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+            pick: '#picker',
+            // 压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
+            resize: true,
+            duplicate: true,
+            accept: {
+                extensions: 'jpg,png,docx',
+                mimeTypes: 'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            },
+            compress: {
+                height: 300,
+                width: 260,
+                quality: 90, //只对image/jpeg有效？
+                allowMagnify: false, // 是否允许放大，如果想要生成小图的时候不失真，此选项应该设置为false.
+                crop: true, // 是否允许裁剪。（宽高比转换）
+                preserveHeaders: true,
+                noCompressIfLarger: false,
+                compressSize: 0 //小于compressSize不会被压缩
+            },
+            method: 'POST'
+        });
+
+        uploader.on('uploadBeforeSend', function (obj, data, headers) {
+            //刷新timestamp
+            data.path = timestamp;
+        });
+
+        uploader.on('fileQueued', function (file) {
+            $("#thelist").append('<div id="' + file.id + '" class="item" style="margin-left: 5px;">' +
+                '<h4 class="info">' + file.name + '</h4>' +
+                '<p class="state">等待上传...</p>' +
+                '</div>');
+        });
+
+        uploader.on('uploadProgress', function (file, percentage) {
+            var $li = $('#' + file.id),
+                $percent = $li.find('.progress .progress-bar');
+
+            // 避免重复创建
+            if (!$percent.length) {
+                $percent = $('<div class="progress progress-striped active">' +
+                    '<div class="progress-bar" role="progressbar" style="width: 0%">' +
+                    '</div>' +
+                    '</div>').appendTo($li).find('.progress-bar');
+            }
+
+            $li.find('p.state').text('上传中');
+            $percent.css('width', percentage * 100 + '%');
+
+        });
+
+        uploader.on('uploadSuccess', function (file) {
+            $('#' + file.id).find('p.state').text('已上传');
+            if (uploader.getStats().successNum == uploader.getFiles().length) {
+                get_index();
+                $("#changeInputBtn").show();
+            }
+        });
+
+        uploader.on('uploadError', function (file) {
+            $('#' + file.id).find('p.state').text('上传出错');
+        });
+
+        uploader.on('uploadComplete', function (file) {
+            $('#' + file.id).find('.progress').fadeOut();
+        });
+
+        uploader.on('error', function (type) {
+            if (type == "Q_TYPE_DENIED") {
+                alert("图片请上传jpg/jpeg,png格式\n文件请上传docx格式");
+            } else if (type == "F_EXCEED_SIZE") {
+                alert("文件大小不能超过5M");
+            } else {
+                alert("上传出错！请检查后重新上传！错误代码" + type);
+            }
+        });
+
+        return uploader;
+    }
+
+</script>
+</body>
+</html>

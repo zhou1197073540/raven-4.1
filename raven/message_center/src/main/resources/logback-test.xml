@@ -1,0 +1,23 @@
+<configuration>
+
+    <appender name="daily" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %level [%thread] %logger{10} %message%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="wallet" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %level [%thread] %logger{10} %message%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="wallet" level="INFO">
+        <appender-ref ref="wallet"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="daily"/>
+    </root>
+
+</configuration>

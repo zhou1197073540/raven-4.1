@@ -1,0 +1,12 @@
+eureka:
+ client:
+   serviceUrl:
+      defaultZone: ${EUREKA_URI:http://172.16.63.34:8761/eureka}
+server:
+  port: 8771
+
+spring:
+  application:
+    name: riddler-usr
+  profiles:
+    include: postgre-aliyun, kafka-aliyun, redis-aliyun

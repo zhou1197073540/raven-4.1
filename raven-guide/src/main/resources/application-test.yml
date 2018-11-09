@@ -1,0 +1,13 @@
+server:
+  port: 8772
+
+eureka:
+ client:
+   serviceUrl:
+     defaultZone: ${EUREKA_URI:http://172.16.20.205:8761/eureka}
+
+spring:
+  application:
+    name: raven_guide
+  profiles:
+    include: redis-test,kafka-test

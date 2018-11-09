@@ -1,0 +1,30 @@
+server:
+  port: 8762
+  tomcat:
+    max-connections: 2000
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+  instance:
+    preferIpAddress: true
+#    statusPageUrlPath: ${eureka.hostname}/info
+#    healthCheckUrlPath: ${eureka.hostname}/health
+    health-check-url:
+      enabled: true
+spring:
+  application:
+    name: wallet
+  profiles:
+    include: redis-test,postgre-test
+
+tomcat:
+  apr:
+    enabled: true
+#management:
+#  port: 8000
+#  health:
+#    mail:
+#      enabled: false
+#  security:
+#    enabled: true
